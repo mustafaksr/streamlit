@@ -4,6 +4,8 @@ from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.embed import components
 import numpy as np
+import matplotlib.pyplot as plt
+import math
 
 # Title of the app
 st.title('CSV File Loader')
@@ -15,7 +17,7 @@ if uploaded_file is not None:
     # Read the CSV file
     df = pd.read_csv(uploaded_file)
     bool_cols = [x for x in df.columns if df[x].dtype==bool]
-    df[bool_cols] = df[bool_cols].astype(np.bool_)
+    df[bool_cols] = df[bool_cols].astype(int)
 
     # Input widget to specify the number of rows to display
     num_rows = st.text_input("Enter the number of rows to display:", "10")
@@ -106,6 +108,26 @@ if uploaded_file is not None:
             
             # Display the category count plot in Streamlit
             st.bokeh_chart(p_cat)
+            
+            # Column distributions section
+            st.write("## Column Distributions")
+            
+            # Plot all columns as subplots
+            fig, axs = plt.subplots(nrows=math.ceil((len(df.columns))**0.5), ncols=math.ceil((len(df.columns))**0.5, ),
+                                    figsize=(16, 15))  # Adjust the figsize as needed
+            axs = axs.flatten()
+            
+            for i, col in enumerate(df.columns):
+                axs[i].hist(df[col],bins=100)
+                axs[i].set_title(col)
+                axs[i].set_xlabel('Index')
+                axs[i].set_ylabel('Value')
+            
+            # Hide any unused subplots
+            for j in range(i + 1, len(axs)):
+                axs[j].axis('off')
+            plt.tight_layout()  # Apply tight layout to avoid overlap
+            st.pyplot(fig)  # Display the Matplotlib figure containing subplots using Streamlit
 
 else:
     st.write("Please upload a CSV file to see its contents.")
