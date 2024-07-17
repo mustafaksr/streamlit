@@ -10,11 +10,17 @@ COPY requirements.txt .
 # Install the required packages
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install supervisord
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
+# Copy the supervisord configuration file
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Copy the rest of the application code into the container
 COPY . .
 
 # Expose the ports for Flask and Streamlit
 EXPOSE 5000 8501
 
-# Command to run both Flask and Streamlit using a process manager
-CMD ["sh", "-c", "flask run --host=0.0.0.0 --port=5000 & streamlit run streamlit_app.py --server.port=8501 --server.headless true"]
+# Command to run supervisord
+CMD ["/usr/bin/supervisord"]
