@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+from bokeh.plotting import figure
+from bokeh.models import HoverTool, ColumnDataSource
+from bokeh.embed import components
 
 # Title of the app
 st.title('CSV File Loader')
@@ -36,5 +39,70 @@ if uploaded_file is not None:
         st.dataframe(df.head(num_rows))
     except ValueError:
         st.write("Please enter a valid number.")
+
+    # Scatter plot section
+    st.write("## Scatter Plot")
+    
+    # Select fields for the scatter plot
+    x_axis = st.selectbox("Select X-axis field:", df.columns)
+    y_axis = st.selectbox("Select Y-axis field:", df.columns)
+    
+    # Select fields for tooltips
+    tooltip_fields = st.multiselect("Select fields for tooltips:", df.columns)
+
+    if x_axis and y_axis:
+        # Prepare data for Bokeh plot
+        source = ColumnDataSource(df)
+        
+        # Create a scatter plot with Bokeh
+        p = figure(title=f"Scatter Plot: {x_axis} vs {y_axis}", 
+                   x_axis_label=x_axis, y_axis_label=y_axis, 
+                   tools="pan,wheel_zoom,box_zoom,reset")
+        
+        # Add scatter plot
+        p.circle(x=x_axis, y=y_axis, source=source, size=10, color="navy", alpha=0.5)
+        
+        # Add tooltips
+        tooltips = [(field, f"@{field}") for field in tooltip_fields]
+        hover = HoverTool(tooltips=tooltips)
+        p.add_tools(hover)
+        
+        # Display the plot in Streamlit
+        script, div = components(p)
+        st.bokeh_chart(p)
+        
+        # Category count plot section
+        st.write("## Category Count Plot")
+        
+        # Filter categorical columns
+        cat_cols = [col for col in df.columns if df[col].dtype == 'object']
+        
+        # Select a categorical field for category counting
+        count_field = st.selectbox("Select a categorical field for category count:", cat_cols)
+        
+        if count_field:
+            # Count occurrences of each category
+            category_counts = df[count_field].value_counts()
+            
+            # Create Bokeh bar plot for category counts
+            cat_source = ColumnDataSource(data=dict(categories=category_counts.index.tolist(),
+                                                    counts=category_counts.tolist()))
+            
+            p_cat = figure(x_range=category_counts.index.tolist(), plot_height=350,
+                           title=f"Category Count for {count_field}", toolbar_location=None, tools="")
+            
+            p_cat.vbar(x='categories', top='counts', width=0.9, source=cat_source,
+                       line_color='white', fill_color='navy', alpha=0.5)
+            
+            p_cat.xgrid.grid_line_color = None
+            p_cat.y_range.start = 0
+            
+            p_cat.xaxis.major_label_orientation = 1.2
+            p_cat.xaxis.axis_label = count_field
+            p_cat.yaxis.axis_label = 'Counts'
+            
+            # Display the category count plot in Streamlit
+            st.bokeh_chart(p_cat)
+
 else:
     st.write("Please upload a CSV file to see its contents.")

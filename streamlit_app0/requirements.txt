@@ -2,3 +2,4 @@ streamlit
 # mysqlclient
 # SQLAlchemy
 pandas
+bokeh==2.4.3
