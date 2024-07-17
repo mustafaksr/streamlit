@@ -13,7 +13,7 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     # Read the CSV file
     df = pd.read_csv(uploaded_file)
-
+    
     # Input widget to specify the number of rows to display
     num_rows = st.text_input("Enter the number of rows to display:", "10")
 
