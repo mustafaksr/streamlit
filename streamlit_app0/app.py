@@ -1,23 +1,21 @@
 import streamlit as st
-
-st.write("""# Hello World """)
-st.write("""## Hello World """)
-          
-st.write("""### Hello World""")
+import pandas as pd
 
 
-# # Initialize connection.
-# conn = st.connection('mysql', type='sql')
+# Title of the app
+st.title('CSV File Loader')
 
-# # Perform query.
-# df = conn.query('SELECT * from wp_users;', ttl=600)
+# File uploader widget
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
-# # Print results.
-# for row in df.itertuples():
-#     st.write(f"user_login : {row.user_login} |  user_pass : {row.user_pass}:")
+if uploaded_file is not None:
+    # Read the CSV file
+    df = pd.read_csv(uploaded_file)
 
-# st.write("# df")
-# st.dataframe(df)
+    # Display the DataFrame
+    st.write("Here's the data from the CSV file:")
+    st.dataframe(df)
+else:
+    st.write("Please upload a CSV file to see its contents.")
 
-# st.write("# df columns")
-# st.dataframe(df[["user_login","user_pass"]])
+
