@@ -3,6 +3,7 @@ import pandas as pd
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.embed import components
+import numpy as np
 
 # Title of the app
 st.title('CSV File Loader')
@@ -13,7 +14,9 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     # Read the CSV file
     df = pd.read_csv(uploaded_file)
-    
+    bool_cols = [x for x in df.columns if df[x].dtype==bool]
+    df[bool_cols] = df[bool_cols].astype(np.bool_)
+
     # Input widget to specify the number of rows to display
     num_rows = st.text_input("Enter the number of rows to display:", "10")
 
