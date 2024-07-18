@@ -8,19 +8,68 @@ import matplotlib.pyplot as plt
 import math
 
 # Insert containers separated into tabs:
-tab1, tab2, tab3 = st.tabs(["Tab 1", "Tab2","Tab3"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Tab 1 EDA", "Tab2 radio","Tab3 Widgets", "Tab4 - SQL conn","Tab 5 - Columns"])
 tab1.write("# this is tab 1")
 tab2.write("# this is tab 2")
 tab3.write("# this is tab 3")
+tab4.write("## this is tab 4")
+tab4.write("## mysql connection")
+tab5.write("# Columns")
+with tab5:
+    col1, col2 = st.columns(2)
+    col1.write('Column 1')
+    col2.write('Column 2')
+
+    # Three columns with different widths
+    col1, col2, col3 = st.columns([3,1,1])
+    # col1 is wider
+
+    # Using 'with' notation:
+    with col1:
+        st.write('This is column 1')
+        st.text_input('Enter some text',key="cols1text")
+        st.number_input('Enter a number',key="cols1number")
+        st.text_area('Area for textual entry',key="cols1textarea")
+    with col2:
+        st.write('This is column 2')
+        st.text_input('Enter some text',key="cols2text")
+        st.number_input('Enter a number',key="cols2nummber")
+        st.text_area('Area for textual entry',key="cols2textarea")
+    with col3:
+        st.write('This is column 3')
+        st.text_input('Enter some text',key="cols3text")
+        st.number_input('Enter a number',key="cols3number")
+        st.text_area('Area for textual entry',key="cols3textarea")      
+with tab4:
+    # Initialize connection.
+    conn = st.connection('mysql', type='sql')
+
+    # Perform query.
+    df = conn.query('SELECT * from wp_users;', ttl=600)
+
+    # Print results.
+    for row in df.itertuples():
+        st.write(f"user_login : {row.user_login} |  user_pass : {row.user_pass}:")
+
+    st.write("# df")
+    st.dataframe(df)
+
+    st.write("# df columns")
+    st.dataframe(df[["user_login","user_pass"]])
+
+    st.write("# user defined columns")
+    count_field = st.multiselect("Select a categorical field for category count:", df.columns)
+    st.dataframe(df[count_field])
+
 # You can also use "with" notation:
 with tab2:
   st.radio('Select one:', [1, 2])
 
-# Title of the app
-st.title('CSV File Loader')
+
 
 with tab1:
-
+    # Title of the app
+    st.title('CSV File Loader')
     # File uploader widget
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
@@ -31,7 +80,7 @@ with tab1:
         df[bool_cols] = df[bool_cols].astype(int)
 
         # Input widget to specify the number of rows to display
-        num_rows = st.text_input("Enter the number of rows to display:", "10")
+        num_rows = st.text_input("Enter the number of rows to display:", "10",key="number")
 
         # Selectbox to choose the column to sort by
         sort_column = st.selectbox("Select column to sort by:", df.columns)
@@ -166,7 +215,7 @@ with tab3:
         st.multiselect('Multiselect', [1,2,3])
         st.slider('Slide me', min_value=0, max_value=10)
         st.select_slider('Slide to select', options=[1,'2'])
-        st.text_input('Enter some text')
+        st.text_input('Enter some text',key="example")
         st.number_input('Enter a number')
         st.text_area('Area for textual entry')
         st.date_input('Date input')
