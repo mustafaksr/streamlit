@@ -8,13 +8,27 @@ import matplotlib.pyplot as plt
 import math
 
 # Insert containers separated into tabs:
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Tab 1 EDA", "Tab2 radio","Tab3 Widgets", "Tab4 - SQL conn","Tab 5 - Columns"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Tab 1 EDA", "Tab2 radio","Tab3 Widgets", "Tab4 - SQL conn","Tab 5 - Columns", "Tab 6 - Chat"])
 tab1.write("# this is tab 1")
 tab2.write("# this is tab 2")
 tab3.write("# this is tab 3")
 tab4.write("## this is tab 4")
 tab4.write("## mysql connection")
 tab5.write("# Columns")
+tab6.write("# Chat")
+
+with tab6:
+    # Insert a chat message container.
+    with st.chat_message("user"):
+        st.write("Hello 👋")
+        st.line_chart(np.random.randn(30, 3))
+        chart_data = pd.DataFrame(np.random.randn(30,3),columns=["feature_1", "feature_2","size"])
+        chart_data['class'] = np.random.choice(['A','B'], 30)
+        st.scatter_chart(data=chart_data, x="feature_1",y="feature_2", color="class",size='size')
+
+    # Display a chat input widget.
+    st.chat_input("Say something")
+
 with tab5:
     col1, col2 = st.columns(2)
     col1.write('Column 1')
