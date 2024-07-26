@@ -2,3 +2,9 @@ chatbot/backend/models--gpt2/.no_exist
 chatbot/backend/models--gpt2/blobs
 chatbot/backend/models--gpt2/refs
 chatbot/backend/models--gpt2/snapshots
+
+document/models--impira--layoutlm-document-qa/.no_exist
+document/models--impira--layoutlm-document-qa/blobs
+document/models--impira--layoutlm-document-qa/refs
+document/models--impira--layoutlm-document-qa/snapshots
+
