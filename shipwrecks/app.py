@@ -60,8 +60,9 @@ def render_folium_map(df, initial_coords=(0, 0)):
         folium.Marker(
             location=[row['latdec'], row['londec']],
             popup=folium.Popup(
+                f"Quasou: {row['quasou']}<br>"
+                f"Feature Type: {row['feature_type']}<br>"
                 f"Chart: {row['chart']}<br>"
-                f"Depth: {row['depth']}<br>"
                 f"Watlev: {row['watlev']}",
                 max_width=300
             )
@@ -118,12 +119,6 @@ def main():
     st.write("Shipwreck Data:")
     st.dataframe(df)
 
-    # Interactive map coordinates
-    st.write("Click on the map to select coordinates.")
-    selected_lat = st.text_input("Latitude", "")
-    selected_lon = st.text_input("Longitude", "")
-    if selected_lat and selected_lon:
-        st.write(f"Selected Latitude: {selected_lat}, Longitude: {selected_lon}")
 
 if __name__ == "__main__":
     main()
