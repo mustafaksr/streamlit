@@ -86,13 +86,22 @@ def main():
     
     # User input for number of shipwrecks
     total_shipwrecks = st.slider("Select number of shipwrecks to display", min_value=1, max_value=500, value=50)
-
+    
     # User input for geographic bounding box
     st.sidebar.header("Filter by Area")
-    min_lat = st.sidebar.number_input("Min Latitude", value=-90.0, format="%.6f")
-    max_lat = st.sidebar.number_input("Max Latitude", value=90.0, format="%.6f")
-    min_lon = st.sidebar.number_input("Min Longitude", value=-180.0, format="%.6f")
-    max_lon = st.sidebar.number_input("Max Longitude", value=180.0, format="%.6f")
+
+    min_lat = st.sidebar.slider("Min Latitude", value=-90.0, min_value=-90., max_value=90., format="%.6f")
+    max_lat = st.sidebar.slider("Max Latitude", value=90.0, min_value=-90., max_value=90., format="%.6f")
+    min_lon = st.sidebar.slider("Min Longitude", value=-180.0, min_value=-180., max_value=180., format="%.6f")
+    max_lon = st.sidebar.slider("Max Longitude", value=180.0, min_value=-180., max_value=180., format="%.6f")
+    
+    # Validate bounding box
+    if max_lat <= min_lat:
+        st.warning("Max Latitude must be greater than Min Latitude.")
+        return
+    if max_lon <= min_lon:
+        st.warning("Max Longitude must be greater than Min Longitude.")
+        return
     
     bbox = {
         'min_lat': min_lat,
@@ -103,7 +112,18 @@ def main():
     
     # Get shipwreck data
     df = get_shipwrecks(limit=total_shipwrecks, bbox=bbox)
-    
+
+    try:
+        watlev = st.multiselect("Watlev", df["watlev"].unique(), default="always under water/submerged")
+        
+        feature_type = st.multiselect("Feature Type", df["feature_type"].unique(), default="Wrecks - Submerged, dangerous")
+
+        df = df[(df["watlev"].isin(watlev)) | (df["feature_type"].isin(feature_type))]
+
+        
+    except:
+        pass
+
     # Display the map
     map_html = render_folium_map(df, min_lat, max_lat, min_lon, max_lon)
     st.components.v1.html(map_html, height=600, width=800)
