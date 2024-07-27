@@ -2,7 +2,7 @@ import streamlit as st
 import pymongo
 import folium
 from folium import IFrame
-from folium.plugins import MeasureControl
+from folium.plugins import MeasureControl, Draw
 from io import BytesIO
 import pandas as pd
 from dotenv import load_dotenv
@@ -40,49 +40,42 @@ def get_shipwrecks(limit=50, bbox=None):
     client.close()
     return df
 
-def render_folium_map(df, initial_coords=(0, 0)):
+def render_folium_map(df, min_lat, max_lat, min_lon, max_lon):
     # Create a Folium map centered around the initial coordinates
     if df.empty:
         return "<p>No data available</p>"
     
-    center_lat = df['latdec'].mean() if not df.empty else initial_coords[0]
-    center_lon = df['londec'].mean() if not df.empty else initial_coords[1]
+    center_lat = df['latdec'].mean() if not df.empty else (min_lat + max_lat) / 2
+    center_lon = df['londec'].mean() if not df.empty else (min_lon + max_lon) / 2
     
-    if center_lat and center_lon:
-        map_ = folium.Map(location=[center_lat, center_lon], zoom_start=3)
-
-    else: 
-        center_lat , center_lon = 15.28, -76.45
-        map_ = folium.Map(location=[center_lat, center_lon], zoom_start=3)
+    map_ = folium.Map(location=[center_lat, center_lon], zoom_start=2)
     
     # Add shipwreck markers
     for _, row in df.iterrows():
         folium.Marker(
             location=[row['latdec'], row['londec']],
             popup=folium.Popup(
-                f"Quasou: {row['quasou']}<br>"
-                f"Feature Type: {row['feature_type']}<br>"
                 f"Chart: {row['chart']}<br>"
+                f"Depth: {row['depth']}<br>"
                 f"Watlev: {row['watlev']}",
                 max_width=300
             )
         ).add_to(map_)
-
-    # Add ClickForMarker to capture click coordinates
-    click_js = """
-    function onMapClick(e) {
-        var lat = e.latlng.lat;
-        var lon = e.latlng.lng;
-        Shiny.setInputValue("lat", lat);
-        Shiny.setInputValue("lon", lon);
-    }
-    map.on('click', onMapClick);
-    """
-    map_.get_root().html.add_child(folium.Element('<script>{}</script>'.format(click_js)))
-
-    # Add MeasureControl for measuring distances and areas
+    
+    # Add Drawing and MeasureControl plugins
+    draw = Draw()
+    draw.add_to(map_)
+    
     measure_control = MeasureControl(primary_length_unit='kilometers', secondary_length_unit='miles', primary_area_unit='hectares', secondary_area_unit='acres')
     map_.add_child(measure_control)
+    
+    # Draw the bounding box based on user inputs
+    folium.Rectangle(
+        bounds=[[min_lat, min_lon], [max_lat, max_lon]],
+        color='blue',
+        fill=True,
+        fill_opacity=0.1
+    ).add_to(map_)
 
     # Save map to a BytesIO buffer
     map_html = map_._repr_html_()
@@ -110,15 +103,15 @@ def main():
     
     # Get shipwreck data
     df = get_shipwrecks(limit=total_shipwrecks, bbox=bbox)
-
+    
     # Display the map
-    map_html = render_folium_map(df)
+    map_html = render_folium_map(df, min_lat, max_lat, min_lon, max_lon)
     st.components.v1.html(map_html, height=600, width=800)
 
     # Show raw data
     st.write("Shipwreck Data:")
     st.dataframe(df)
-
+    st.write(f"Total Shipwrecks in data: {len(df)}")
 
 if __name__ == "__main__":
     main()
