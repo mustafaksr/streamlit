@@ -1,13 +1,16 @@
 import streamlit as st
 import pymongo
 import folium
+from folium import IFrame
+from folium.plugins import MeasureControl
 from io import BytesIO
-import base64
 import pandas as pd
 from dotenv import load_dotenv
 import os
+from streamlit.components.v1 import html
+
 load_dotenv()
-DATABASE_PASS=os.environ["DATABASE_PASS"]
+DATABASE_PASS = os.environ["DATABASE_PASS"]
 
 # MongoDB connection settings
 MONGO_URI = f'mongodb+srv://myAtlasDBUser:{DATABASE_PASS}@edu.xflg0n2.mongodb.net/?retryWrites=true&w=majority&appName=EDU'
@@ -37,26 +40,48 @@ def get_shipwrecks(limit=50, bbox=None):
     client.close()
     return df
 
-def render_folium_map(df):
-    # Create a map centered around the average coordinates
+def render_folium_map(df, initial_coords=(0, 0)):
+    # Create a Folium map centered around the initial coordinates
     if df.empty:
         return "<p>No data available</p>"
     
-    center_lat = df['latdec'].mean()
-    center_lon = df['londec'].mean()
-    map_ = folium.Map(location=[center_lat, center_lon], zoom_start=10)
+    center_lat = df['latdec'].mean() if not df.empty else initial_coords[0]
+    center_lon = df['londec'].mean() if not df.empty else initial_coords[1]
+    
+    if center_lat and center_lon:
+        map_ = folium.Map(location=[center_lat, center_lon], zoom_start=3)
+
+    else: 
+        center_lat , center_lon = 15.28, -76.45
+        map_ = folium.Map(location=[center_lat, center_lon], zoom_start=3)
     
     # Add shipwreck markers
     for _, row in df.iterrows():
         folium.Marker(
             location=[row['latdec'], row['londec']],
             popup=folium.Popup(
-                f"Coor.: {row['latdec']}, {row['londec']}<br>"
+                f"Chart: {row['chart']}<br>"
                 f"Depth: {row['depth']}<br>"
                 f"Watlev: {row['watlev']}",
                 max_width=300
             )
         ).add_to(map_)
+
+    # Add ClickForMarker to capture click coordinates
+    click_js = """
+    function onMapClick(e) {
+        var lat = e.latlng.lat;
+        var lon = e.latlng.lng;
+        Shiny.setInputValue("lat", lat);
+        Shiny.setInputValue("lon", lon);
+    }
+    map.on('click', onMapClick);
+    """
+    map_.get_root().html.add_child(folium.Element('<script>{}</script>'.format(click_js)))
+
+    # Add MeasureControl for measuring distances and areas
+    measure_control = MeasureControl(primary_length_unit='kilometers', secondary_length_unit='miles', primary_area_unit='hectares', secondary_area_unit='acres')
+    map_.add_child(measure_control)
 
     # Save map to a BytesIO buffer
     map_html = map_._repr_html_()
@@ -84,14 +109,21 @@ def main():
     
     # Get shipwreck data
     df = get_shipwrecks(limit=total_shipwrecks, bbox=bbox)
-    
-    # Render Folium map
+
+    # Display the map
     map_html = render_folium_map(df)
     st.components.v1.html(map_html, height=600, width=800)
 
     # Show raw data
     st.write("Shipwreck Data:")
     st.dataframe(df)
+
+    # Interactive map coordinates
+    st.write("Click on the map to select coordinates.")
+    selected_lat = st.text_input("Latitude", "")
+    selected_lon = st.text_input("Longitude", "")
+    if selected_lat and selected_lon:
+        st.write(f"Selected Latitude: {selected_lat}, Longitude: {selected_lon}")
 
 if __name__ == "__main__":
     main()
