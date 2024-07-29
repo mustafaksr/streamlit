@@ -28,6 +28,10 @@ steps:
       - >-
         --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$_TAG,gcb-build-id=$BUILD_ID
       - '--region=$_DEPLOY_REGION'
+      - '--cpu=2'
+      - '--memory=4Gi' 
+      - '--port=8501'
+      - '--allow-unauthenticated'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud
