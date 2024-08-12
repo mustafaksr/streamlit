@@ -1,13 +1,20 @@
 import streamlit as st
 from transformers import pipeline
 from PIL import Image
-
-model_dir = "models--impira--layoutlm-document-qa/snapshots/beed3c4d02d86017ebca5bd0fdf210046b907aa6"
-# Load the NLP pipeline
-nlp = pipeline(
-    "document-question-answering",
-    model=model_dir,
-)
+try: 
+    model_dir = "models--impira--layoutlm-document-qa/snapshots/beed3c4d02d86017ebca5bd0fdf210046b907aa6"
+    # Load the NLP pipeline
+    nlp = pipeline(
+        "document-question-answering",
+        model=model_dir,
+    )
+except:
+    model_dir = "impira/layoutlm-document-qa"
+    # Load the NLP pipeline
+    nlp = pipeline(
+        "document-question-answering",
+        model=model_dir,
+    )
 
 # Streamlit app title
 st.title("Document Question Answering")
