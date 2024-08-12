@@ -3,8 +3,12 @@ from transformers import TapexTokenizer, BartForConditionalGeneration
 import pandas as pd
 
 model_dir = "models--microsoft--tapex-large-finetuned-wtq/snapshots/e7073dd4c5fcf2fe92c4c660c953575d6de2d1a6"
-tokenizer = TapexTokenizer.from_pretrained(model_dir)
-model = BartForConditionalGeneration.from_pretrained(model_dir)
+try:
+    tokenizer = TapexTokenizer.from_pretrained(model_dir)
+    model = BartForConditionalGeneration.from_pretrained(model_dir)
+except:
+    tokenizer = TapexTokenizer.from_pretrained("microsoft/tapex-large-finetuned-wtq")
+    model = BartForConditionalGeneration.from_pretrained("microsoft/tapex-large-finetuned-wtq")
 
 # Streamlit app title
 st.title("Table Question Answering")
