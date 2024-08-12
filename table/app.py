@@ -7,8 +7,8 @@ try:
     tokenizer = TapexTokenizer.from_pretrained(model_dir)
     model = BartForConditionalGeneration.from_pretrained(model_dir)
 except:
-    tokenizer = TapexTokenizer.from_pretrained("microsoft/tapex-large-finetuned-wtq")
-    model = BartForConditionalGeneration.from_pretrained("microsoft/tapex-large-finetuned-wtq")
+    tokenizer = TapexTokenizer.from_pretrained("microsoft/tapex-large-finetuned-wtq",force_download=True)
+    model = BartForConditionalGeneration.from_pretrained("microsoft/tapex-large-finetuned-wtq",force_download=True)
 
 # Streamlit app title
 st.title("Table Question Answering")
