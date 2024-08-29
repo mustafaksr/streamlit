@@ -13,3 +13,5 @@ table/models--microsoft--tapex-large-finetuned-wtq/.no_exist
 table/models--microsoft--tapex-large-finetuned-wtq/blobs
 table/models--microsoft--tapex-large-finetuned-wtq/refs
 table/models--microsoft--tapex-large-finetuned-wtq/snapshots
+
+models--impira--layoutlm-document-qa
