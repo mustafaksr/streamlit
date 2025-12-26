@@ -106,3 +106,27 @@ F = fz × z × N
 F = {fz} × {z} × {N:.0f}
 F = {F:.1f} mm/dak
 """)
+
+
+# ------------------------------------------------
+# ÖĞRENCİYE MANTIKSAL AÇIKLAMA
+# ------------------------------------------------
+st.subheader("🧠 Hesaplama Mantığı (Kısa Açıklama)")
+
+if islem == "Torna / Matkap":
+    st.write(f"""
+Bu işlemde **kesme hızı (V)** sabit alınmıştır.  
+Parça çapı **{D} mm** olduğu için devir sayısı buna göre hesaplanır.  
+
+➡️ Sonuç olarak parça, **{N:.0f} dev/dak** hızla dönmelidir.  
+Çap büyürse devir azalır, çap küçülürse devir artar.
+""")
+
+if islem == "Freze":
+    st.write(f"""
+Önce kesme hızı ve freze çapı kullanılarak **devir sayısı** hesaplanmıştır.  
+Seçilen frezede her diş, bir turda **{fz} mm** ilerler.  
+
+Freze **{z} dişli** olduğu için toplam ilerleme artar.  
+➡️ Bu nedenle tabla ilerlemesi **{F:.1f} mm/dak** olarak bulunmuştur.
+""")
