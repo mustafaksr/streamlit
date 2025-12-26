@@ -14,4 +14,6 @@ table/models--microsoft--tapex-large-finetuned-wtq/blobs
 table/models--microsoft--tapex-large-finetuned-wtq/refs
 table/models--microsoft--tapex-large-finetuned-wtq/snapshots
 
+streamlit_app0/steamlit-env
+
 models--impira--layoutlm-document-qa
